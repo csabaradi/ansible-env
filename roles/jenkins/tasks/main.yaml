@@ -1,0 +1,58 @@
+---
+- name: add group "jenkins"
+  group: name=jenkins
+
+- name: add user "jenkins"
+  user: name=jenkins groups=jenkins,wheel home=/var/lib/jenkins createhome=yes
+  become: True
+  become_method: sudo
+
+- name: add wheel group to sudoers without password
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^%wheel"
+    line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+    state: present
+
+- name: add wheel to the allowed groups in sshd configs
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^AllowUsers"
+    line: "AllowUsers {{usernames | join(' ')}}"
+
+- local_action: wait_for port=22 host="{{ ansible_ssh_host | default(inventory_hostname) }}" search_regex=OpenSSH delay=10
+
+- name: apply changes in sshd config
+  service:
+    name: sshd
+    state: reloaded
+
+- name: add jenkins authorized keys
+  authorized_key: user=jenkins state=present key="{{ lookup('file', 'files/jenkins.pub')}}"
+
+- name: get jenkins repo
+  get_url:
+    url: http://pkg.jenkins-ci.org/redhat/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+    mode: 0440
+
+- name: import jenkins rpm key
+  rpm_key:
+    state: present
+    key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: add jenkins repo
+  yum_repository:
+    name: jenkins
+    description: jenkins YUM repo
+    file: jenkins.repo
+    baseurl: https://pkg.jenkins-ci.org/redhat/jenkins.repo
+    enabled: yes
+
+- name: Install jenkins
+  yum: name=jenkins state=present
+
+- name: Start jenkins servers
+  service:
+    name: jenkins
+    state: started

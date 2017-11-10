@@ -1,0 +1,30 @@
+---
+- name: Install git
+  yum: name=git state=present
+
+- name: ensure .ssh dir exists
+  file:
+    dest: /var/lib/jenkins/.ssh
+    mode: 0700
+    owner: jenkins
+
+- name: add gitconfig
+  copy:
+    src: '{{ item.path}}'
+    dest: '{{ item.target}}'
+    mode: '{{ item.mode}}'
+    owner: jenkins
+    group: jenkins
+  with_items:
+    - path: files/aws-gitconfig
+      target: /var/lib/jenkins/.gitconfig
+      mode: '0600'
+    - path: files/aws-jenkins.pem
+      target: /var/lib/jenkins/.ssh/jenkins.pem
+      mode: '0600'
+    - path: files/aws-git.pem
+      target: /var/lib/jenkins/.ssh/git.pem
+      mode: '0600'
+    - path: files/aws-ssh-config
+      target: /var/lib/jenkins/.ssh/config
+      mode: '0644'

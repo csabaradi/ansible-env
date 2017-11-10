@@ -1,0 +1,24 @@
+---
+- name: add group "jenkins"
+  group: name=jenkins
+
+- name: add user "jenkins"
+  user: name=jenkins group=jenkins home=/var/lib/jenkins createhome=yes
+  become: True
+  become_method: sudo
+
+- name: import jenkins rpm key
+  rpm_key:
+    state: present
+    key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: add jenkins repo
+  yum_repository:
+    name: jenkins
+    description: jenkins YUM repo
+    file: jenkins.repo
+    baseurl: https://pkg.jenkins-ci.org/redhat/jenkins.repo
+    enabled: yes
+
+- name: Install jenkins
+  yum: name=java-1.7.0-openjdk state=present

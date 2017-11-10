@@ -1,0 +1,9 @@
+Host github.com
+  StrictHostKeyChecking no
+  User csabaradi
+  IdentityFile ~/.ssh/git.pem
+
+Host *
+  StrictHostKeyChecking no
+  User jenkins
+  IdentityFile ~/.ssh/jenkins.pem

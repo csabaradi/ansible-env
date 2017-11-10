@@ -1,0 +1,61 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars:
+    aws_access_key: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      37663435643161623035613333306135656431633834376533653739386134356237376361666134
+      3663393261663037383365646333313937303835623366300a636665633533323364623332623064
+      62346636623931623262373530396363386537353165353332663939613664663136343434353265
+      3130656133313962310a646630376531613035386466663662326234613431666130663264396330
+      33643761333334633130343337366434626363623233323361643861643064336664
+    aws_secret_key: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      61353031323931353638353635633866363334626238333366633066663936613834386333326465
+      3530333034333562646431336663656539656338376339660a326435616465613763333633373938
+      63383237306136653634393633656364643130653833626135326136343438336236343361633133
+      6238316434336338660a666136316239663861376638393536326362623334666164386266363563
+      31366337306135336332353136393833616335393565626133373738366166646437666134663034
+      6130653230346532613566633963643166643730356238363439
+
+  tasks:
+  - name: Provision a set of instances
+    ec2:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "eu-central-1"
+      key_name: "csaba.radi"
+      group_id: "sg-3347a958"
+      instance_type: "t2.micro"
+      image: "ami-01b26a6e"
+      wait: true
+      exact_count: 1
+      count_tag: Name="{{ instance_name }}"
+      instance_tags:
+        Name: "{{ instance_name }}"
+    register: ec2
+  - name: Wait for SSH to come up
+    wait_for:
+      host: "{{ item.public_dns_name }}"
+      port: 22
+      delay: 60
+      timeout: 320
+      state: started
+    with_items: "{{ ec2.instances }}"
+  - name: Add all instance public IPs to host group
+    add_host:
+      name: "{{ instance_name }}"
+      groups: aws
+      ansible_ssh_host: "{{ item.public_dns_name }}"
+    with_items: "{{ ec2.instances }}"
+
+- hosts: aws
+  vars:
+    usernames:
+      - root
+      - ultraserve
+      - jenkins
+  roles:
+    - jenkins
+    - jenkins-user

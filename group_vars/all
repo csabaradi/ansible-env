@@ -1,0 +1,3 @@
+# This will configure a default manager-gui user:
+
+instance_name: centos-jenkins14
