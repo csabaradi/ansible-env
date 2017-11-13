@@ -1,0 +1,20 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Add all instance public IPs to host group
+    add_host:
+      name: "{{ instance_name }}"
+      groups: aws
+      ansible_ssh_host: ec2-54-93-227-152.eu-central-1.compute.amazonaws.com
+- hosts: aws
+  connection: ssh
+  vars:
+    usernames:
+      - root
+      - ultraserve
+      - jenkins
+  roles:
+    - jenkins
+    - jenkins-user
