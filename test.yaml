@@ -7,14 +7,20 @@
     add_host:
       name: "{{ instance_name }}"
       groups: aws
-      ansible_ssh_host: ec2-54-93-227-152.eu-central-1.compute.amazonaws.com
+      ansible_ssh_host: ec2-54-93-113-143.eu-central-1.compute.amazonaws.com
 - hosts: aws
   connection: ssh
   vars:
     usernames:
       - root
-      - ultraserve
-      - jenkins
+        ultraserve
+        jenkins
+        ubuntu
+    ansible_ssh_user: root
+    ansible_ssh_private_key_vault_file: files/aws-jenknins.pem
   roles:
     - jenkins
     - jenkins-user
+  tasks:
+    - name: debug jenkins pem and hostsfile
+      command: echo hello world

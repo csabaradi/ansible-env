@@ -24,7 +24,7 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       region: "eu-central-1"
-      key_name: "csaba.radi"
+      key_name: "devops"
       group_id: "sg-3347a958"
       instance_type: "t2.micro"
       image: "ami-01b26a6e"
@@ -55,6 +55,9 @@
       - root
       - ultraserve
       - jenkins
+      - ubuntu
+    ansible_ssh_user: root
+    ansible_ssh_private_key_file: files/aws-jenkins.pem
   roles:
     - jenkins
     - jenkins-user

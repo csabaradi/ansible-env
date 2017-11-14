@@ -1,4 +1,3 @@
 # variables available only on local hosts
 
-instance_name: centos-jenkins35
-edit_config_command: xmlstarlet ed -L -s //user/properties -t elem -n jenkins.security.LastGrantedAuthoritiesProperty -v "" -s //user/properties/jenkins.security.LastGrantedAuthoritiesProperty -t elem -n roles -v "" -s //user/properties/jenkins.security.LastGrantedAuthoritiesProperty/roles -t elem -n string -v authenticated -s //user/properties/jenkins.security.LastGrantedAuthoritiesProperty -t elem -n timestamp -v "`date +%s`" /var/lib/jenkins/users/admin/config.xml
+instance_name: centos-jenkins46
